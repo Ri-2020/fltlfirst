@@ -36,12 +36,16 @@ class HomePage extends StatelessWidget {
         margin: const EdgeInsets.all(20.0),
         // **futurbuilder** widget is used if we want to build the widget after task completion as in this first the firebase app is initilized and only then the coloumn get rendered on the screen
         child: FutureBuilder(
+          // to initilize the firebase app
+
           future: Firebase.initializeApp(
             options: DefaultFirebaseOptions.currentPlatform,
           ),
           builder: (context, snapshot) {
             switch (snapshot.connectionState) {
               case ConnectionState.done:
+
+                // to get the current user
                 final user = FirebaseAuth.instance.currentUser;
                 final emailVerified = user?.emailVerified ?? false;
                 if (emailVerified) {

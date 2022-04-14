@@ -78,7 +78,7 @@ class _RegisterViewState extends State<RegisterView> {
                       onPressed: () async {
                         final String email = _email.text;
                         final String password = _password.text;
-
+                        // firebase error handling
                         try {
                           await FirebaseAuth.instance
                               .createUserWithEmailAndPassword(
