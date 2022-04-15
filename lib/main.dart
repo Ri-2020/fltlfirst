@@ -1,6 +1,8 @@
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
 import 'package:notesapp/views/register_view.dart';
+import 'package:notesapp/views/verify_email_view.dart';
 import 'firebase_options.dart';
 import 'views/login_view.dart';
 
@@ -42,17 +44,18 @@ class HomePage extends StatelessWidget {
           case ConnectionState.done:
 
             // to get the current user
-            // final user = FirebaseAuth.instance.currentUser;
+            final user = FirebaseAuth.instance.currentUser;
             // final emailVerified = user?.emailVerified ?? false;
-            // print(user);
-            // if (emailVerified) {
-            //   return const Text("Done");
-            // } else {
-            //   return const VerifyEmailView();
-            // }
-
-            return const LoginView();
-
+            if (user != null) {
+              if (user.emailVerified) {
+                print("Email id verified");
+              } else {
+                return const VerifyEmailView();
+              }
+            } else {
+              return const LoginView();
+            }
+            return const Text("done");
           default:
             return const Text("Loading...");
         }
