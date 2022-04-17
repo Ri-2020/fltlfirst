@@ -1,8 +1,10 @@
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
-import 'dart:developer' as devtools show log;
+// import 'dart:developer' as devtools show log;
 
 import 'package:notesapp/constants/routes.dart';
+
+import '../utilities/show_error_dialog.dart';
 
 class RegisterView extends StatefulWidget {
   const RegisterView({Key? key}) : super(key: key);
@@ -80,13 +82,25 @@ class _RegisterViewState extends State<RegisterView> {
                   );
                 } on FirebaseAuthException catch (e) {
                   if (e.code == "weak-password") {
-                    devtools.log("Weak Password");
+                    showErrorDialog(
+                      context,
+                      "Weak password, try a harder password",
+                    );
                   } else if (e.code == "email-already-in-use") {
-                    devtools.log("Email Already in Use");
+                    showErrorDialog(
+                      context,
+                      "Email already in use, login or use another email address",
+                    );
                   } else if (e.code == "invalid-email") {
-                    devtools.log("Invalid email entered");
+                    showErrorDialog(
+                      context,
+                      "Email is invalid, Please enter a valid email address",
+                    );
                   } else {
-                    devtools.log("Someting Bad Happen");
+                    showErrorDialog(
+                      context,
+                      "Error : ${e.code}",
+                    );
                   }
                 }
                 // this function is to create an instance of a new user in the firebase
