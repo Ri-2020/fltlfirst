@@ -49,7 +49,7 @@ class HomePage extends StatelessWidget {
             // final emailVerified = user?.emailVerified ?? false;
             if (user != null) {
               if (user.emailVerified) {
-                print("Email id verified");
+                devtools.log("Email id verified");
               } else {
                 return const VerifyEmailView();
               }
