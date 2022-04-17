@@ -1,5 +1,9 @@
+import 'dart:html';
+
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
+import 'package:notesapp/constants/routes.dart';
+import 'package:notesapp/views/login_view.dart';
 
 class VerifyEmailView extends StatefulWidget {
   const VerifyEmailView({Key? key}) : super(key: key);
@@ -15,17 +19,40 @@ class _VerifyEmailViewState extends State<VerifyEmailView> {
       appBar: AppBar(
         title: const Text("Verify Email"),
       ),
-      body: Column(
-        children: [
-          const Text("Please Verify your email address "),
-          TextButton(
-            onPressed: () async {
-              final user = FirebaseAuth.instance.currentUser;
-              await user?.sendEmailVerification();
-            },
-            child: const Text("Send Email Verificaition"),
-          )
-        ],
+      body: Container(
+        margin: const EdgeInsets.all(20),
+        child: Column(
+          children: [
+            const Text(
+              "We've Sent a verification link please click on that to verify your email address",
+              style: TextStyle(
+                fontWeight: FontWeight.bold,
+              ),
+            ),
+            const SizedBox(
+              height: 20.0,
+            ),
+            const Text(
+                "If you have'nt recieved the verification email please click below"),
+            TextButton(
+              onPressed: () async {
+                final user = FirebaseAuth.instance.currentUser;
+                await user?.sendEmailVerification();
+              },
+              child: const Text("Send Email Verificaition"),
+            ),
+            TextButton(
+              onPressed: () async {
+                await FirebaseAuth.instance.signOut();
+                Navigator.of(context).pushNamedAndRemoveUntil(
+                  registerRoute,
+                  (route) => false,
+                );
+              },
+              child: const Text('Restart'),
+            )
+          ],
+        ),
       ),
     );
   }
