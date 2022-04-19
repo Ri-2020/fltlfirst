@@ -1,7 +1,9 @@
-import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 // import 'dart:developer' as devtools show log;
 import 'package:notesapp/constants/routes.dart';
+import 'package:notesapp/services/auth/auth_provider.dart';
+import 'package:notesapp/services/auth/auth_exception.dart';
+import 'package:notesapp/services/auth/auth_service.dart';
 
 import '../utilities/show_error_dialog.dart';
 
@@ -73,12 +75,12 @@ class _LoginViewState extends State<LoginView> {
                 final String password = _password.text;
                 try {
                   // final userCredentials =
-                  await FirebaseAuth.instance.signInWithEmailAndPassword(
+                  await AuthService.firebase().login(
                     email: email,
                     password: password,
                   );
-                  final user = FirebaseAuth.instance.currentUser;
-                  if (user?.emailVerified ?? false) {
+                  final user = AuthService.firebase().currentUser;
+                  if (user?.isEmailVerified ?? false) {
                     Navigator.of(context).pushNamedAndRemoveUntil(
                       notesRoute,
                       (route) => false,
@@ -89,30 +91,24 @@ class _LoginViewState extends State<LoginView> {
                       (route) => false,
                     );
                   }
-                } on FirebaseAuthException catch (e) {
-                  if (e.code == "user-not-found") {
-                    showErrorDialog(
-                      context,
-                      "User not found",
-                    );
-                  } else if (e.code == "wrong-password") {
-                    showErrorDialog(
-                      context,
-                      "Wrong password",
-                    );
-                  } else {
-                    showErrorDialog(
-                      context,
-                      "Error : ${e.code}",
-                    );
-                  }
+                } on UserNotFoundAuthException {
+                  showErrorDialog(
+                    context,
+                    "User not found",
+                  );
+                } on WrongPasswordAuthException {
+                  showErrorDialog(
+                    context,
+                    "Wrong password",
+                  );
+                } on GenericAuthException {
+                  showErrorDialog(
+                    context,
+                    "Authentication Error",
+                  );
                 }
-                // devtools.log("$email and $password");
-
-                // this function is to create an instance of a new user in the firebase
-                // devtools.log(userCredetials);
               },
-              child: const Text("Login"),
+              child: const Text('Login'),
             ),
             TextButton(
               onPressed: () {

@@ -1,9 +1,10 @@
-import 'package:firebase_auth/firebase_auth.dart';
+// import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 // import 'dart:developer' as devtools show log;
 
 import 'package:notesapp/constants/routes.dart';
-
+import 'package:notesapp/services/auth/auth_service.dart';
+import 'package:notesapp/services/auth/auth_exception.dart';
 import '../utilities/show_error_dialog.dart';
 
 class RegisterView extends StatefulWidget {
@@ -76,38 +77,32 @@ class _RegisterViewState extends State<RegisterView> {
                 final String password = _password.text;
                 // firebase error handling
                 try {
-                  await FirebaseAuth.instance.createUserWithEmailAndPassword(
-                    email: email,
-                    password: password,
-                  );
-                  final user = FirebaseAuth.instance.currentUser;
-                  await user?.sendEmailVerification();
+                  await AuthService.firebase()
+                      .createUser(email: email, password: password);
+                  // final user = AuthService.firebase().currentUser;
+                  await AuthService.firebase().sendEmailVerification();
                   Navigator.of(context).pushNamed(verifyEmailRoute);
-                } on FirebaseAuthException catch (e) {
-                  if (e.code == "weak-password") {
-                    showErrorDialog(
-                      context,
-                      "Weak password, try a harder password",
-                    );
-                  } else if (e.code == "email-already-in-use") {
-                    showErrorDialog(
-                      context,
-                      "Email already in use, login or use another email address",
-                    );
-                  } else if (e.code == "invalid-email") {
-                    showErrorDialog(
-                      context,
-                      "Email is invalid, Please enter a valid email address",
-                    );
-                  } else {
-                    showErrorDialog(
-                      context,
-                      "Error : ${e.code}",
-                    );
-                  }
+                } on WeakPasswordAuthException {
+                  showErrorDialog(
+                    context,
+                    "Weak password, try a harder password",
+                  );
+                } on EmailAlreadyInUseAuthException {
+                  showErrorDialog(
+                    context,
+                    "Email already in use, login or use another email address",
+                  );
+                } on InvalidEmailAddressAuthException {
+                  showErrorDialog(
+                    context,
+                    "Email is invalid, Please enter a valid email address",
+                  );
+                } on GenericAuthException {
+                  showErrorDialog(
+                    context,
+                    "Authinticaton Error Occured",
+                  );
                 }
-                // this function is to create an instance of a new user in the firebase
-                // devtools.log(userCredetials);
               },
               child: const Text("Register"),
             ),
