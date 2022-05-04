@@ -11,6 +11,13 @@ import 'package:path/path.dart' show join;
 class NotesService {
   Database? _db;
 
+  List<DatabaseNotes> _notes = [];
+
+  static final NotesService _shared = NotesService._sharedInstance();
+  NotesService._sharedInstance();
+
+  factory NotesService() => _shared;
+
   Future<DatabaseUser> getorCreateUser({required String email}) async {
     try {
       final user = await getUser(email: email);
@@ -24,10 +31,11 @@ class NotesService {
   }
 
   // so this is out cache and this is where we are saving data in local
-  List<DatabaseNotes> _notes = [];
 
   final _notesStreamController =
       StreamController<List<DatabaseNotes>>.broadcast();
+
+  Stream<List<DatabaseNotes>> get allNotes => _notesStreamController.stream;
 
   Future<void> _cacheNotes() async {
     final allNotes = await getAllNotes();

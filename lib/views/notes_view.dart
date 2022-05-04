@@ -35,41 +35,58 @@ class _NotesViewState extends State<NotesView> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
-        title: const Text("Baalofy"),
-        actions: [
-          //popup menu button in appbar
-          PopupMenuButton<MenuAction>(
-            onSelected: (value) async {
-              switch (value) {
-                case MenuAction.logout:
-                  final shoudLogout = await showLogOutDialog(context);
-                  if (shoudLogout) {
-                    AuthService.firebase().logout();
-                    Navigator.of(context).pushNamedAndRemoveUntil(
-                      loginRoute,
-                      (_) => false,
-                    );
-                  } else {}
-                  break;
-              }
-            },
-            itemBuilder: (context) {
-              return const [
-                PopupMenuItem<MenuAction>(
-                  child: Text("Log out"),
-                  value: MenuAction.logout,
-                )
-              ];
-            },
-          )
-        ],
-      ),
-      body: Container(
-        margin: const EdgeInsets.all(20),
-        child: const Text("This is main UI of the whole app."),
-      ),
-    );
+        appBar: AppBar(
+          title: const Text("Baalofy"),
+          actions: [
+            //popup menu button in appbar
+            PopupMenuButton<MenuAction>(
+              onSelected: (value) async {
+                switch (value) {
+                  case MenuAction.logout:
+                    final shoudLogout = await showLogOutDialog(context);
+                    if (shoudLogout) {
+                      AuthService.firebase().logout();
+                      Navigator.of(context).pushNamedAndRemoveUntil(
+                        loginRoute,
+                        (_) => false,
+                      );
+                    } else {}
+                    break;
+                }
+              },
+              itemBuilder: (context) {
+                return const [
+                  PopupMenuItem<MenuAction>(
+                    child: Text("Log out"),
+                    value: MenuAction.logout,
+                  )
+                ];
+              },
+            )
+          ],
+        ),
+        body: FutureBuilder(
+          future: _notesService.getorCreateUser(email: userEmail),
+          builder: (context, snapshot) {
+            switch (snapshot.connectionState) {
+              case ConnectionState.done:
+                return StreamBuilder(
+                  stream: _notesService.allNotes,
+                  builder: (context, snapshot) {
+                    switch (snapshot.connectionState) {
+                      case ConnectionState.waiting:
+                        return const Text("waiting for notes");
+                      default:
+                        return const CircularProgressIndicator();
+                    }
+                  },
+                );
+              // break;
+              default:
+                return const CircularProgressIndicator();
+            }
+          },
+        ));
   }
 }
 
